@@ -156,7 +156,7 @@ footer a{color:var(--accent)}
     </div>
 
     <div class="toolbar">
-      <input type="search" id="q" placeholder="아이템 이름 검색 (한국어 · 영어)">
+      <input type="search" id="q" placeholder="아이템 이름 검색 (한국어 · 영어) — 검색 중엔 종류·요청 필터 무시">
       <select id="typeF" aria-label="종류 필터"></select>
       <label class="chk"><input type="checkbox" id="onlyReq"> 요청 품목만</label>
       <label class="chk"><input type="checkbox" id="showLack"> 일꾼 레벨 부족도 표시</label>
@@ -273,7 +273,7 @@ function parse(s){return s?s.split(" ").map(x=>({i:+x[0],k:x[1],v:+x.slice(2)}))
 
 function defaults(){return{v:1,at:0,example:true,workers:Array(NW).fill(30),guild:0,other:0,cu:5,sf:0,asc:0,ar:{},maxTier:16,prem:"all",owned:[],hidden:[],ov:{},slots:["","","",""],x2:[false,false,false,false],qual:0,baseMc:0,nslots:1,onlyReq:true,showLack:false,sort:"fph",q:"",typeF:"",lang:"auto"}}
 function normalize(o){const d=defaults();const s=Object.assign(d,o||{});if(!Array.isArray(s.workers)||s.workers.length<NW){const w=d.workers;(o&&o.workers||[]).forEach((v,i)=>w[i]=v);s.workers=w}return s}
-const SEED={"v":1,"at":0,"example":false,"workers":[35,37,36,33,35,27,35,0,35,36,25,31,0,0,0,0,20,0,0],"guild":25,"other":0,"cu":5,"sf":0,"asc":0,"ar":{"6":14,"40":14},"maxTier":14,"prem":"all","owned":["Arboreal Blade","Stonesplitter","Molten Voulge","Ice Pick","Darkwood Branch"],"hidden":[],"ov":{},"slots":["","","",""],"x2":[false,false,false,false],"qual":0,"baseMc":0,"nslots":10,"onlyReq":true,"showLack":false,"sort":"fph","q":"","typeF":"0"};
+const SEED={"v":1,"at":0,"example":false,"workers":[35,37,36,33,35,27,35,0,35,36,25,31,0,0,0,0,20,0,0],"guild":25,"other":0,"cu":5,"sf":0,"asc":0,"ar":{"6":14,"40":14},"maxTier":14,"prem":"all","owned":["Arboreal Blade","Stonesplitter","Molten Voulge","Ice Pick","Darkwood Branch"],"hidden":[],"ov":{},"slots":["","","",""],"x2":[false,false,false,false],"qual":0,"baseMc":0,"nslots":10,"onlyReq":true,"showLack":false,"sort":"fph","q":"","typeF":""};
 let S=SEED?normalize(SEED):defaults();
 try{const raw=localStorage.getItem(KEY);if(raw)S=normalize(JSON.parse(raw))}catch(e){}
 const toCode=o=>"KC1:"+btoa(unescape(encodeURIComponent(JSON.stringify(o))));
@@ -332,10 +332,10 @@ function rows(){
   const q=S.q.trim().toLowerCase();const out=[];let lackN=0,premHidden=0;
   for(const it of ITEMS){
     if(!eligible(it)){if(isPack(it)&&S.prem==="owned"&&it.tier<=S.maxTier&&!S.hidden.includes(it.name))premHidden++;continue}
-    if(S.typeF!==""&&+S.typeF!==it.type)continue;
-    if(q&&!it.name.toLowerCase().includes(q)&&!it.ko.includes(q))continue;
+    if(!q&&S.typeF!==""&&+S.typeF!==it.type)continue;
+    if(q){const qs=q.replace(/\s+/g,'');if(!it.name.toLowerCase().replace(/\s+/g,'').includes(qs)&&!it.ko.replace(/\s+/g,'').includes(qs))continue}
     const c=calc(it);
-    if(S.onlyReq&&anyReq()&&!c.cm)continue;
+    if(!q&&S.onlyReq&&anyReq()&&!c.cm)continue;
     if(c.lack.length){lackN++;if(!S.showLack)continue}
     out.push({it,c})}
   const k=S.sort;out.sort((a,b)=>k==="time"?a.c.time-b.c.time:k==="fav"?b.c.favEach-a.c.favEach:b.c.fph-a.c.fph);
