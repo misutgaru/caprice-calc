@@ -247,17 +247,8 @@ footer a{color:var(--accent)}
     </div>
 
     <div class="panel">
-      <h2>자원 생산 속도 (분당) <span class="meta" style="font-weight:400">(제작 칸 채우기 계산용)</span></h2>
-      <p class="meta" style="margin:-4px 0 10px">길드의 자원 건물(대장간, 방직소 등)을 누르면 나오는 <b>"○○ 생산 4.4/분"</b> <b>기본값</b>을 그대로 넣고, 아래에 내 생산 보너스를 따로 넣으세요. 출처가 다른 보너스끼리는 곱해서 계산해요. <b>비워 두거나 0이면 제한 없음</b>으로 계산합니다.</p>
-      <div class="fields" style="margin-bottom:12px">
-        <label class="field"><span>길드 부스트 (자원 부스트) +%</span><input type="number" id="rbGuild" min="0" max="500" step="1"><small>켜져 있을 때만. 모든 자원</small></label>
-        <label class="field"><span>길드 특전 · 일반 자원 재생 +%</span><input type="number" id="rbPerkC" min="0" max="100" step="1"><small>철 · 나무 · 가죽 · 약초</small></label>
-        <label class="field"><span>길드 특전 · 고급 자원 재생 +%</span><input type="number" id="rbPerkU" min="0" max="100" step="1"><small>강철 · 철목 · 천 · 오일</small></label>
-        <label class="field"><span>길드 특전 · 희귀 자원 재생 +%</span><input type="number" id="rbPerkR" min="0" max="100" step="1"><small>에테르 · 보석</small></label>
-        <label class="field"><span>재능 트리 자원 재생 +%</span><input type="number" id="rbTal" min="0" max="500" step="1"><small>일반 자원(철 · 나무 · 가죽 · 약초)만</small></label>
-        <label class="field"><span>기타 자원 생산 +%</span><input type="number" id="rbOther" min="0" max="500" step="1"><small>보관함 레벨 보너스, 이벤트 등. 모든 자원</small></label>
-      </div>
-      <p class="meta" id="rbSum" style="margin:-4px 0 10px"></p>
+      <h2>자원 생산 속도 · 최대 보관량 <span class="meta" style="font-weight:400">(제작 칸 채우기 계산용)</span></h2>
+      <p class="meta" style="margin:-4px 0 10px">게임 화면 위쪽 자원 아이콘을 누르면 나오는 <b>"435/435 · 31.687/분"</b>을 그대로 옮겨 적으세요. 위 칸에 <b>분당 생산량</b>(31.687), 아래 칸에 <b>최대 보관량</b>(435)이에요. 이 값에는 길드 부스트 · 특전 · 재능 보너스가 이미 다 들어가 있어요. 길드 부스트가 켜지거나 꺼지면 다시 확인해 주세요. <b>비워 둔 자원은 제한 없음</b>으로 계산합니다.</p>
       <div class="rgrid" id="rgrid"></div>
     </div>
 
@@ -332,9 +323,8 @@ footer a{color:var(--accent)}
     <div class="panel">
       <h2>자원 설정 (제작 칸 채우기용)</h2>
       <ul>
-        <li><b>분당 기본값:</b> 길드 자원 건물(방직소 등)을 누르면 나오는 "천 생산 4.4/분" 숫자를 그대로 넣으세요. 이건 보너스가 빠진 기본값이에요.</li>
-        <li><b>최대 보관량:</b> 자원별 보관함 최대치.</li>
-        <li><b>보너스:</b> 길드 부스트(자원 부스트), 길드 특전(일반 · 고급 · 희귀 자원 재생), 재능 트리(일반 자원만), 기타를 따로 넣으세요. 출처가 다른 보너스끼리는 곱해져요.</li>
+        <li>게임 화면 위쪽 <b>자원 아이콘을 누르면</b> "435/435 · 31.687/분"처럼 나와요. 앞의 최대치를 <b>최대 보관량</b>에, 분당 숫자를 <b>분당 생산량</b>에 넣으세요.</li>
+        <li>이 분당 숫자에는 길드 부스트 · 길드 특전 · 재능 보너스가 이미 다 들어가 있어요. 길드 부스트가 켜지거나 꺼지면 다시 옮겨 적으세요.</li>
         <li>비워 둔 자원은 제한 없음으로 계산해요.</li>
       </ul>
       <p style="margin-top:10px"><b>두 가지 계산 방식</b></p>
@@ -492,7 +482,7 @@ function render(){
 }
 /* ---------- resource-limited slot plan (LP) ---------- */
 const RTIER=[0,0,0,0,1,1,1,1,2,2,3,3];
-const rgMult=i=>{const p=x=>1+(+S[x]||0)/100;const tier=RTIER[i];return p('rbGuild')*p('rbOther')*(tier===0?p('rbPerkC')*p('rbTal'):tier===1?p('rbPerkU'):tier===2?p('rbPerkR'):1)};
+const rgMult=i=>1;
 function lpMax(c,A,b){const m=A.length,n=c.length,W=n+m+1;const T=[];
   for(let i=0;i<m;i++){const r=new Float64Array(W);for(let j=0;j<n;j++)r[j]=A[i][j];r[n+i]=1;r[W-1]=b[i];T.push(r)}
   const z=new Float64Array(W);for(let j=0;j<n;j++)z[j]=-c[j];const basis=Array.from({length:m},(_,i)=>n+i);
@@ -508,13 +498,13 @@ function effOf(it,c){let time=c.time;const res=it.res.slice();const pre=[];
 function renderPlan(){const out=document.getElementById("planOut");if(!out)return;
   const fill=S.planMode!=="flow";
   document.querySelectorAll("[data-pm]").forEach(b=>b.setAttribute("aria-selected",(b.dataset.pm==="fill")===fill));
-  document.getElementById("planDesc").innerHTML=fill?'보관함이 <b>전부 꽉 찬 상태</b>에서 <b>제작 슬롯 수</b>만큼 지금 한 번씩 넣을 때, 시간당 호의 합계가 가장 커지는 조합이에요. 설정의 <b>최대 보관량</b>을 씁니다.':'자원이 들어오는 속도(<b>분당 기본값 × 보너스</b>)만으로 칸을 계속 돌릴 때 가장 좋은 조합이에요.';
+  document.getElementById("planDesc").innerHTML=fill?'보관함이 <b>전부 꽉 찬 상태</b>에서 <b>제작 슬롯 수</b>만큼 지금 한 번씩 넣을 때, 시간당 호의 합계가 가장 커지는 조합이에요. 설정의 <b>최대 보관량</b>을 씁니다. 금방 끝나서 계속 다시 넣어야 하는 5분 미만 아이템은 뺐어요.':'자원이 들어오는 속도(<b>분당 생산량</b>)만으로 칸을 계속 돌릴 때 가장 좋은 조합이에요.';
   const N=Math.max(1,Math.round(+S.nslots||1));
   const lim=fill?S.cap.map(v=>+v||0):S.regen.map((v,i)=>(+v||0)*60*rgMult(i));const active=lim.map((v,i)=>v>0?i:-1).filter(i=>i>=0);
-  const cand=[];for(const it of ITEMS){if(!eligible(it))continue;const c=calc(it);if(c.lack.length)continue;if(anyReq()&&!c.cm)continue;const e=effOf(it,c);cand.push({it,c,e})}
+  const cand=[];for(const it of ITEMS){if(!eligible(it))continue;const c=calc(it);if(c.lack.length)continue;if(anyReq()&&!c.cm)continue;const e=effOf(it,c);if(fill&&e.time<300)continue;cand.push({it,c,e})}
   if(!cand.length){out.innerHTML='<p class="meta">조건에 맞는 아이템이 없습니다.</p>';return}
   cand.sort((a,b)=>b.e.fph-a.e.fph);const C=cand.slice(0,400);
-  if(!active.length){const t=C[0];out.innerHTML=`<p class="meta">설정 탭의 <b>${fill?"최대 보관량":"분당 기본 생산량"}</b>을 넣으면 자원 한도 안에서 계산합니다. 지금은 제한이 없어서 1위 <b>${esc(nm(t.it))}</b>를 ${N}칸 모두 넣는 게 최선이에요 (시간당 ${fmtN(t.e.fph*N)}).</p>`;return}
+  if(!active.length){const t=C[0];out.innerHTML=`<p class="meta">설정 탭의 <b>${fill?"최대 보관량":"분당 생산량"}</b>을 넣으면 자원 한도 안에서 계산합니다. 지금은 제한이 없어서 1위 <b>${esc(nm(t.it))}</b>를 ${N}칸 모두 넣는 게 최선이에요 (시간당 ${fmtN(t.e.fph*N)}).</p>`;return}
   const rate=C.map(x=>fill?x.e.res.slice():x.e.res.map(v=>v*3600/x.e.time));
   const A=[C.map(()=>1)],b=[N];for(const r of active){A.push(rate.map(rt=>rt[r]));b.push(lim[r])}
   const xs=lpMax(C.map(x=>x.e.fph),A,b);
@@ -605,17 +595,17 @@ function settingsUI(){
   document.getElementById("maxTier").innerHTML=Array.from({length:16},(_,i)=>`<option value="${i+1}">T${i+1}</option>`).join("");
   document.getElementById("qual").innerHTML=QUAL.map((q,i)=>`<option value="${i}">${q[0]} ×${q[1]}</option>`).join("");
   document.getElementById("argrid").innerHTML=D.types.map((t,i)=>MAXT_BY_TYPE[i]<14?"":`<label>${TYPE_KO[i]}<select data-ar="${i}"><option value="0">없음</option><option value="14">T14</option>${MAXT_BY_TYPE[i]>=15?'<option value="15">T14–15</option>':""}${MAXT_BY_TYPE[i]>=16?'<option value="16">T14–16</option>':""}</select></label>`).join("");
-  document.getElementById("rgrid").innerHTML=RES.map((r,i)=>`<label>${r[0]} <small>${r[1]}</small><input type="number" min="0" step="0.1" data-rg="${i}" id="rg${i}" placeholder="분당 기본값" aria-label="${r[0]} 분당 기본 생산"><input type="number" min="0" step="10" data-cap="${i}" id="cap${i}" placeholder="최대 보관량" aria-label="${r[0]} 최대 보관량"><small class="num" id="rgh${i}"></small></label>`).join("");
+  document.getElementById("rgrid").innerHTML=RES.map((r,i)=>`<label>${r[0]} <small>${r[1]}</small><input type="number" min="0" step="0.001" data-rg="${i}" id="rg${i}" placeholder="분당 생산량" aria-label="${r[0]} 분당 생산량"><input type="number" min="0" step="10" data-cap="${i}" id="cap${i}" placeholder="최대 보관량" aria-label="${r[0]} 최대 보관량"><small class="num" id="rgh${i}"></small></label>`).join("");
   document.getElementById("typeF").innerHTML=`<option value="">모든 종류</option>`+D.types.map((t,i)=>`<option value="${i}">${TYPE_KO[i]}</option>`).join("");
   document.getElementById("ownType").innerHTML=document.getElementById("typeF").innerHTML;
   syncSettings()}
 function syncSettings(){
   for(let i=0;i<NW;i++){const el=document.getElementById("w"+i);if(document.activeElement!==el)el.value=S.workers[i];const b=D.speed[Math.min(50,+S.workers[i]||0)]||0,b2=D.speed15[Math.min(50,+S.workers[i]||0)]||0;
     document.getElementById("wb"+i).textContent=`속도 −${Math.round(b*100)}%`+(b2?` · T15+ −${Math.round(b2*100)}%`:"")}
-  for(const id of ["guild","other","cu","sf","asc","maxTier","prem","qual","baseMc","nslots","lang","rbTal","rbGuild","rbOther","rbPerkC","rbPerkU","rbPerkR"]){const el=document.getElementById(id);if(document.activeElement!==el)el.value=S[id]}
+  for(const id of ["guild","other","cu","sf","asc","maxTier","prem","qual","baseMc","nslots","lang"]){const el=document.getElementById(id);if(document.activeElement!==el)el.value=S[id]}
   document.querySelectorAll("[data-ar]").forEach(el=>el.value=S.ar[el.dataset.ar]||0);
-  for(let i=0;i<12;i++){const el=document.getElementById("rg"+i);if(el&&document.activeElement!==el)el.value=S.regen[i]?S.regen[i]:"";const ce=document.getElementById("cap"+i);if(ce&&document.activeElement!==ce)ce.value=S.cap[i]?S.cap[i]:"";const hh=document.getElementById("rgh"+i);if(hh)hh.textContent=S.regen[i]?`실제 ${nf1.format(S.regen[i]*rgMult(i))}/분 · 시간당 ${nf.format(S.regen[i]*60*rgMult(i))}`+(S.cap[i]?` · 최대 ${nf.format(S.cap[i])}`:""):(S.cap[i]?`최대 ${nf.format(S.cap[i])}`:"")}
-  const rs=document.getElementById("rbSum");if(rs){const f=m=>`×${(Math.round(m*100)/100).toFixed(2)}`;rs.textContent=`적용 배수 — 일반 자원 ${f(rgMult(0))} · 고급 자원 ${f(rgMult(4))} · 희귀 자원 ${f(rgMult(8))} · 정수 · 별가루 ${f(rgMult(10))}`}
+  for(let i=0;i<12;i++){const el=document.getElementById("rg"+i);if(el&&document.activeElement!==el)el.value=S.regen[i]?S.regen[i]:"";const ce=document.getElementById("cap"+i);if(ce&&document.activeElement!==ce)ce.value=S.cap[i]?S.cap[i]:"";const hh=document.getElementById("rgh"+i);if(hh)hh.textContent=S.regen[i]?`시간당 ${nf.format(S.regen[i]*60)}`:""}
+
   document.getElementById("q").value=S.q;document.getElementById("typeF").value=S.typeF;
   document.getElementById("onlyReq").checked=S.onlyReq;document.getElementById("showLack").checked=S.showLack;
   document.getElementById("ownPanel").hidden=S.prem!=="owned";
@@ -682,7 +672,7 @@ document.addEventListener("change",e=>{const t=e.target;
 });
 document.addEventListener("input",e=>{const t=e.target;
   if(t.dataset.w!==undefined){const v=Math.max(0,Math.min(50,Math.round(+t.value||0)));change(()=>{S.workers[+t.dataset.w]=v;S.example=false},{settings:true});return}
-  if(["guild","other","baseMc","nslots","rbTal","rbGuild","rbOther","rbPerkC","rbPerkU","rbPerkR"].includes(t.id)){const v=Math.max(t.id==="nslots"?1:0,+t.value||0);change(()=>S[t.id]=v,{settings:true});return}
+  if(["guild","other","baseMc","nslots"].includes(t.id)){const v=Math.max(t.id==="nslots"?1:0,+t.value||0);change(()=>S[t.id]=v,{settings:true});return}
   if(t.dataset.cap!==undefined){const v=Math.max(0,+t.value||0);change(()=>S.cap[+t.dataset.cap]=v,{settings:true});return}
   if(t.dataset.rg!==undefined){const v=Math.max(0,+t.value||0);change(()=>S.regen[+t.dataset.rg]=v,{settings:true});return}
   if(t.id==="q"){LIMIT=60;change(()=>S.q=t.value);return}
